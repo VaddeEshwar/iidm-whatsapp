@@ -36,7 +36,7 @@ jobs:
         echo "DB_NAME=u844009458_whatsapp_data" >> .env
         echo "DB_USER=u844009458_eshwarvadde8" >> .env
         echo "DB_PASSWORD=eshwar9642" >> .env
-        echo "DB_HOST=YOUR_HOSTINGER_MYSQL_HOST" >> .env
+        echo "DB_HOST=auth-db1235.hstgr.io" >> .env
         echo "DB_PORT=3306" >> .env
 
     - name: Test MySQL Connection
