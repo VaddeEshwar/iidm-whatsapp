@@ -1,0 +1,44 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ campaign.name }} Details</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h2>{{ campaign.name }}</h2>
+        <p>Success Rate: {{ success_rate|floatformat:2 }}%</p>
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+            <div class="message {{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% if logs %}
+        <table>
+            <tr>
+                <th>Phone</th>
+                <th>Status</th>
+                <th>Error</th>
+                <th>Key Used</th>
+            </tr>
+            {% for log in logs %}
+            <tr style="color: {% if log.status == 'failed' %}#991b1b{% else %}#065f46{% endif %};">
+                <td>{{ log.phone_number }}</td>
+                <td>{{ log.status|capfirst }}</td>
+                <td>{{ log.error_code|default:"-" }}</td>
+                <td>{{ log.api_key_used }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% else %}
+        <p>No logs available for this campaign.</p>
+        {% endif %}
+        <a href="{% url 'dashboard' %}" class="back-link">← Back to Dashboard</a>
+    </div>
+</body>
+</html>

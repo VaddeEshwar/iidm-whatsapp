@@ -1,0 +1,401 @@
+{% load static humanize %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ campaign.name }} - WhatsApp Campaign Manager</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+
+<body>
+    <!-- Animated Background -->
+    <div class="bg-animation"></div>
+    <div class="floating-shapes">
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+    </div>
+
+    <!-- Header -->
+    <header>
+        <div class="header-container">
+            <div class="logo">
+                <div class="logo-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+                        <path
+                            d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.149-.67.149-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414-.074-.123-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
+                    </svg>
+                </div>
+                WhatsApp Campaign Manager
+            </div>
+            <nav>
+                <ul class="nav-links">
+                    <!-- These two links are always shown -->
+                    <li>
+                        <a href="{% url 'upload' %}"
+                            class="{% if request.resolver_match.url_name == 'upload' %}active{% endif %}">
+                            Create Campaign
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'dashboard' %}"
+                            class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                            Dashboard
+                        </a>
+                    </li>
+
+                    <!-- Auth-dependent section -->
+                    {% if user.is_authenticated %}
+                    <li style="display: flex; align-items: center; gap: 10px; color: white;">
+                        <span>Hi, {{ user.username }}!</span>
+                        <a href="{% url 'logout' %}" style="color: #ffffff; 
+                  background: rgba(255,255,255,0.15); 
+                  padding: 6px 16px; 
+                  border-radius: 6px; 
+                  text-decoration: none; 
+                  font-family: 'Poppins', sans-serif; 
+                  font-size: 14px; 
+                  border: 1px solid rgba(255,255,255,0.2); 
+                  transition: background 0.2s;">
+                            Logout
+                        </a>
+                    </li>
+                    {% else %}
+                    <li><a href="{% url 'login' %}" style="color: #ffffff; 
+                  background: rgba(255,255,255,0.15); 
+                  padding: 6px 16px; 
+                  border-radius: 6px; 
+                  text-decoration: none; 
+                  font-family: 'Poppins', sans-serif; 
+                  font-size: 14px; 
+                  border: 1px solid rgba(255,255,255,0.2); 
+                  transition: background 0.2s;">Login</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    
+    <main>
+        <div class="page-container">
+            <!-- Campaign Header -->
+            <div class="campaign-header">
+                <div class="campaign-title-section">
+                    <h1 class="campaign-title">{{ campaign.name }}</h1>
+                    <span class="campaign-id">ID: #{{ campaign.id }}</span>
+                </div>
+                <div class="campaign-actions">
+                    <button class="action-btn-large" onclick="exportData()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
+                        </svg>
+                        Export
+                    </button>
+                    <button class="action-btn-large primary" onclick="retryFailed()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path
+                                d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z" />
+                        </svg>
+                        Retry Failed
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats Overview -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value">{{ total|intcomma }}</div>
+                    <div class="stat-label">Total Recipients</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">{{ sent|intcomma }}</div>
+                    <div class="stat-label">Messages Sent</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">{{ failed|intcomma }}</div>
+                    <div class="stat-label">Failed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">{{ success_rate|floatformat:1 }}%</div>
+                    <div class="stat-label">Success Rate</div>
+                </div>
+            </div>
+
+            <!-- Search and Filter Bar -->
+            <div class="controls-bar">
+                <div class="search-container">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" class="search-input" placeholder="Search by phone number..." id="searchInput">
+                </div>
+                <div class="filter-buttons">
+                    <button class="filter-btn active" onclick="filterStatus('all')">All</button>
+                    <button class="filter-btn" onclick="filterStatus('sent')">Sent</button>
+                    <button class="filter-btn" onclick="filterStatus('failed')">Failed</button>
+                    <button class="filter-btn" onclick="filterStatus('pending')">Pending</button>
+                </div>
+            </div>
+            <!-- Add this above your script -->
+
+
+            <!-- Campaign Details Table -->
+            <div class="table-container">
+                <table id="campaignTable">
+                    <thead>
+                        <tr>
+                            <th onclick="sortTable('phone')">
+                                Phone <span class="sort-icon">↕</span>
+                            </th>
+                            <th onclick="sortTable('status')">
+                                Status <span class="sort-icon">↕</span>
+                            </th>
+                            <th onclick="sortTable('error')">
+                                Error <span class="sort-icon">↕</span>
+                            </th>
+                            <th onclick="sortTable('key')">
+                                Key Used <span class="sort-icon">↕</span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination" id="pagination">
+                <!-- Generated dynamically -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-container">
+            <div class="footer-section">
+                <h3>Product</h3>
+                <ul>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#pricing">Pricing</a></li>
+                    <li><a href="#integrations">Integrations</a></li>
+                    <li><a href="#api">API Documentation</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Company</h3>
+                <ul>
+                    <li><a href="#about">About Us</a></li>
+                    <li><a href="#careers">Careers</a></li>
+                    <li><a href="#blog">Blog</a></li>
+                    <li><a href="#press">Press</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Support</h3>
+                <ul>
+                    <li><a href="#help">Help Center</a></li>
+                    <li><a href="#contact">Contact Us</a></li>
+                    <li><a href="#status">System Status</a></li>
+                    <li><a href="#faq">FAQs</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Legal</h3>
+                <ul>
+                    <li><a href="#privacy">Privacy Policy</a></li>
+                    <li><a href="#terms">Terms of Service</a></li>
+                    <li><a href="#cookies">Cookie Policy</a></li>
+                    <li><a href="#compliance">Compliance</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 WhatsApp Campaign Manager. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Toast Container -->
+    <div id="toastContainer"></div>
+
+    <!-- Inject real data from Django -->
+<script>
+    // ✅ Load logs safely
+    const campaignData = {{ logs_json|safe }};
+
+    const campaignStats = {
+        name: "{{ campaign.name|escapejs }}",
+        total: {{ total }},
+        sent: {{ sent }},
+        failed: {{ failed }},
+        success_rate: {{ success_rate }}
+    };
+
+    // =============== Your existing JS logic (unchanged) ===============
+    let currentFilter = 'all';
+    let currentPage = 1;
+    const itemsPerPage = 10;
+    let sortOrder = {};
+    let fullData = [...campaignData];
+
+    function initTable() {
+        const tbody = document.getElementById('tableBody');
+        if (!tbody) return;
+
+        if (campaignData.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="4" style="text-align:center;padding:2rem;color:#666;">
+                        No logs available for this campaign.
+                    </td>
+                </tr>
+            `;
+            document.getElementById('pagination').style.display = 'none';
+            return;
+        }
+
+        fullData = [...campaignData];
+        renderTable();
+        setupSearch();
+    }
+
+    function filterData() {
+        if (currentFilter === 'all') return fullData;
+        return fullData.filter(item => item.status === currentFilter);
+    }
+
+    function renderTable() {
+        const tbody = document.getElementById('tableBody');
+        const filtered = filterData();
+        const total = filtered.length;
+        const totalPages = Math.ceil(total / itemsPerPage);
+        const start = (currentPage - 1) * itemsPerPage;
+        const paginated = filtered.slice(start, start + itemsPerPage);
+
+        tbody.innerHTML = '';
+        paginated.forEach(item => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td><div class="phone-number">${item.phone}</div></td>
+                <td><span class="status-badge status-${item.status}">${item.status}</span></td>
+                <td><div class="error-message">${item.error}</div></td>
+                <td><div class="key-used" title="${item.key}">${item.key}</div></td>
+            `;
+            tbody.appendChild(row);
+        });
+
+        renderPagination(totalPages);
+    }
+
+    function renderPagination(totalPages) {
+        const container = document.getElementById('pagination');
+        if (!container || totalPages <= 1) {
+            if (container) container.innerHTML = '';
+            return;
+        }
+
+        let html = `<button class="page-btn" onclick="changePage('prev')" ${currentPage === 1 ? 'disabled' : ''}>←</button>`;
+        for (let i = 1; i <= Math.min(totalPages, 5); i++) {
+            html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
+        }
+        html += `<button class="page-btn" onclick="changePage('next')" ${currentPage === totalPages ? 'disabled' : ''}>→</button>`;
+        container.innerHTML = html;
+    }
+
+    function filterStatus(status) {
+        currentFilter = status;
+        currentPage = 1;
+        document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+        renderTable();
+    }
+
+    function setupSearch() {
+        const input = document.getElementById('searchInput');
+        if (!input) return;
+        input.addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            document.querySelectorAll('#tableBody tr').forEach(row => {
+                const phone = row.querySelector('.phone-number')?.textContent.toLowerCase() || '';
+                row.style.display = phone.includes(term) ? '' : 'none';
+            });
+        });
+    }
+
+    function sortTable(column) {
+        sortOrder[column] = sortOrder[column] === 'asc' ? 'desc' : 'asc';
+        const filtered = filterData();
+        filtered.sort((a, b) => {
+            let aVal = a[column], bVal = b[column];
+            if (column === 'phone') {
+                aVal = aVal.replace(/\D/g, '');
+                bVal = bVal.replace(/\D/g, '');
+            }
+            if (sortOrder[column] === 'asc') return aVal > bVal ? 1 : -1;
+            else return aVal < bVal ? 1 : -1;
+        });
+        fullData = [...filtered];
+        renderTable();
+    }
+
+    function changePage(direction) {
+        const totalPages = Math.ceil(filterData().length / itemsPerPage);
+        if (direction === 'prev' && currentPage > 1) currentPage--;
+        else if (direction === 'next' && currentPage < totalPages) currentPage++;
+        renderTable();
+    }
+
+    function goToPage(page) {
+        currentPage = page;
+        renderTable();
+    }
+
+    function exportData() {
+        const headers = ['Phone', 'Status', 'Error', 'Key Used'];
+        const rows = campaignData.map(item =>
+            `"${item.phone}","${item.status}","${item.error}","${item.key}"`
+        );
+        const csv = [headers.join(','), ...rows].join('\n');
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `{{ campaign.name|slugify }}_details.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+
+    function retryFailed() {
+        const failed = campaignData.filter(item => item.status === 'failed');
+        if (failed.length === 0) {
+            showToast('No failed messages to retry', 'warning');
+            return;
+        }
+        showToast(`Retrying ${failed.length} failed messages...`, 'success');
+        // TODO: Add AJAX call to retry endpoint
+    }
+
+    function showToast(message, type = 'success') {
+        const container = document.getElementById('toastContainer');
+        if (!container) return;
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        const icons = { success: '✓', error: '✕', warning: '⚠' };
+        toast.innerHTML = `<span class="toast-icon">${icons[type]}</span><span>${message}</span>`;
+        container.appendChild(toast);
+        setTimeout(() => toast.classList.add('show'), 100);
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 400);
+        }, 3000);
+    }
+
+    document.addEventListener('DOMContentLoaded', initTable);
+</script>
+</body>
+
+</html>

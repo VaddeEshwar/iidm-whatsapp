@@ -1,0 +1,16 @@
+<h2>❌ Failed Messages</h2>
+{% if failed_logs %}
+    <table border="1">
+        <tr><th>Phone</th><th>Error</th><th>Time</th></tr>
+        {% for log in failed_logs %}
+        <tr>
+            <td>{{ log.phone_number }}</td>
+            <td>{{ log.error_code }}</td>
+            <td>{{ log.timestamp }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    <p>✅ No failures!</p>
+{% endif %}
+<a href="{% url 'upload' %}">⬅️ Back</a>

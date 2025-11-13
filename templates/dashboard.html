@@ -1,0 +1,462 @@
+{% load static %}
+{% load static humanize %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - WhatsApp Campaign Manager</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+
+<body>
+    <!-- Animated Background -->
+    <div class="bg-animation"></div>
+    <div class="floating-shapes">
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+    </div>
+
+    <!-- Header -->
+    <header>
+        <div class="header-container">
+            <div class="logo">
+                <div class="logo-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+                        <path
+                            d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.149-.67.149-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414-.074-.123-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
+                    </svg>
+                </div>
+                WhatsApp Campaign Manager
+            </div>
+            <nav>
+                <ul class="nav-links">
+                    <!-- These two links are always shown -->
+                    <li>
+                        <a href="{% url 'upload' %}"
+                            class="{% if request.resolver_match.url_name == 'upload' %}active{% endif %}">
+                            Create Campaign
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'dashboard' %}"
+                            class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                            Dashboard
+                        </a>
+                    </li>
+
+                    <!-- Auth-dependent section -->
+                    {% if user.is_authenticated %}
+                    <li style="display: flex; align-items: center; gap: 10px; color: white;">
+                        <span>Hi, {{ user.username }}!</span>
+                        <a href="{% url 'logout' %}"
+                            style="color: #ffffff; 
+                  background: rgba(255,255,255,0.15); 
+                  padding: 6px 16px; 
+                  border-radius: 6px; 
+                  text-decoration: none; 
+                  font-family: 'Poppins', sans-serif; 
+                  font-size: 14px; 
+                  border: 1px solid rgba(255,255,255,0.2); 
+                  transition: background 0.2s;">
+                            Logout
+                        </a>
+                    </li>
+                    {% else %}
+                    <li><a href="{% url 'login' %}" style="color: #ffffff; 
+                  background: rgba(255,255,255,0.15); 
+                  padding: 6px 16px; 
+                  border-radius: 6px; 
+                  text-decoration: none; 
+                  font-family: 'Poppins', sans-serif; 
+                  font-size: 14px; 
+                  border: 1px solid rgba(255,255,255,0.2); 
+                  transition: background 0.2s;">Login</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+
+    <main>
+        <div class="page-container">
+            <h1 class="page-title">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="url(#iconGradient)">
+                    <defs>
+                        <linearGradient id="iconGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#25D366;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#128C7E;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z" />
+                </svg>
+                Campaign Dashboard
+            </h1>
+            <p class="page-subtitle">Monitor and manage your WhatsApp campaigns</p>
+
+            <!-- Stats Cards (Dynamic) -->
+            {% if campaigns %}
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-value">{{ campaigns|length }}</div>
+                    <div class="stat-label">Total Campaigns</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📤</div>
+                    <div class="stat-value">{{ total_sent|intcomma }}</div>
+                    <div class="stat-label">Messages Sent</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-value">{{ success_rate|floatformat:1 }}%</div>
+                    <div class="stat-label">Success Rate</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">❌</div>
+                    <div class="stat-value">{{ failure_rate|floatformat:1 }}%</div>
+                    <div class="stat-label">Failure Rate</div>
+                </div>
+            </div>
+            {% else %}
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-value">0</div>
+                    <div class="stat-label">Total Campaigns</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📤</div>
+                    <div class="stat-value">0</div>
+                    <div class="stat-label">Messages Sent</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-value">0.0%</div>
+                    <div class="stat-label">Success Rate</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">❌</div>
+                    <div class="stat-value">0.0%</div>
+                    <div class="stat-label">Failure Rate</div>
+                </div>
+            </div>
+            {% endif %}
+       <div class="container">
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+            <div class="message {{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+            <!-- Search and Filter Bar -->
+            <div class="controls-bar">
+                <div class="search-container">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" class="search-input" placeholder="Search campaigns..." id="searchInput">
+                </div>
+                <div class="filter-buttons">
+                    <button class="filter-btn active" onclick="filterCampaigns('all')">All</button>
+                    <button class="filter-btn" onclick="filterCampaigns('in_progress')">In Progress</button>
+                    <button class="filter-btn" onclick="filterCampaigns('completed')">Completed</button>
+                    <!-- Note: You may not have 'failed' status, so we use logic below -->
+                </div>
+            </div>
+
+            <!-- Campaigns Table -->
+            <div class="table-container">
+                <table id="campaignsTable">
+                    <thead>
+                        <tr>
+                            <th onclick="sortTable('name')">
+                                Name <span class="sort-icon">↕</span>
+                            </th>
+                            <th onclick="sortTable('total')">
+                                Total <span class="sort-icon">↕</span>
+                            </th>
+                            <th onclick="sortTable('sent')">
+                                Sent <span class="sort-icon">↕</span>
+                            </th>
+                            <th onclick="sortTable('failed')">
+                                Failed <span class="sort-icon">↕</span>
+                            </th>
+                            <th onclick="sortTable('status')">
+                                Status <span class="sort-icon">↕</span>
+                            </th>
+                            <th>Progress</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <!-- Will be populated by JS from Django data -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination" id="pagination">
+                <!-- Will be generated dynamically -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+   <footer>
+        <div class="footer-container">
+            <div class="footer-section">
+                <h3>Product</h3>
+                <ul>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#pricing">Pricing</a></li>
+                    <li><a href="#integrations">Integrations</a></li>
+                    <li><a href="#api">API Documentation</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Company</h3>
+                <ul>
+                    <li><a href="#about">About Us</a></li>
+                    <li><a href="#careers">Careers</a></li>
+                    <li><a href="#blog">Blog</a></li>
+                    <li><a href="#press">Press</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Support</h3>
+                <ul>
+                    <li><a href="#help">Help Center</a></li>
+                    <li><a href="#contact">Contact Us</a></li>
+                    <li><a href="#status">System Status</a></li>
+                    <li><a href="#faq">FAQs</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Legal</h3>
+                <ul>
+                    <li><a href="#privacy">Privacy Policy</a></li>
+                    <li><a href="#terms">Terms of Service</a></li>
+                    <li><a href="#cookies">Cookie Policy</a></li>
+                    <li><a href="#compliance">Compliance</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 WhatsApp Campaign Manager. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Toast Container -->
+    <div id="toastContainer"></div>
+
+    <!-- Inject Django data into JS -->
+    <script>
+        // ✅ Real data from Django
+    
+const campaigns = [
+    {% for c in campaigns %}
+    {
+        id: {{ c.id }},
+        name: "{{ c.name|escapejs }}",
+        total: {{ c.total_numbers|default:0 }},
+        sent: {{ c.sent_count|default:0 }},
+        failed: {{ c.failed_count|default:0 }},
+        status: {% if c.total_numbers == c.sent_count|default:0|add:c.failed_count|default:0 %}"completed"{% else %}"in_progress"{% endif %}
+    }{% if not forloop.last %},{% endif %}
+    {% empty %}
+    // No campaigns
+    {% endfor %}
+];
+
+        // If no campaigns, show message
+        if (campaigns.length === 0) {
+            document.getElementById('tableBody').innerHTML = `
+                <tr>
+                    <td colspan="7" style="text-align: center; padding: 2rem; color: #666;">
+                        No campaigns available. <a href="{% url 'upload' %}" style="color: #25D366;">Create your first campaign</a>
+                    </td>
+                </tr>
+            `;
+            document.getElementById('pagination').style.display = 'none';
+        }
+
+        // Rest of your JS logic (unchanged, but uses real data)
+        let currentFilter = 'all';
+        let currentPage = 1;
+        const itemsPerPage = 5;
+        let fullCampaignList = [...campaigns]; // Preserve original
+
+        function initTable() {
+            renderTable();
+            setupSearch();
+        }
+
+        function filterCampaignsData() {
+            if (currentFilter === 'all') {
+                return fullCampaignList;
+            }
+            return fullCampaignList.filter(c => c.status === currentFilter);
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('tableBody');
+            const filtered = filterCampaignsData();
+            const total = filtered.length;
+            const totalPages = Math.ceil(total / itemsPerPage);
+            const start = (currentPage - 1) * itemsPerPage;
+            const paginated = filtered.slice(start, start + itemsPerPage);
+
+            tbody.innerHTML = '';
+
+            if (paginated.length === 0 && campaigns.length > 0) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center">No campaigns match the filter.</td></tr>`;
+            } else {
+                paginated.forEach(c => {
+                    const progress = c.total > 0 ? (c.sent / c.total) * 100 : 0;
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>
+                            <div class="campaign-name">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="color: #25D366;">
+                                    <path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm2 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+                                </svg>
+                                ${c.name}
+                            </div>
+                        </td>
+                        <td><strong>${c.total.toLocaleString()}</strong></td>
+                        <td>${c.sent.toLocaleString()}</td>
+                        <td style="color: ${c.failed > 0 ? '#f56565' : '#48bb78'}">${c.failed.toLocaleString()}</td>
+                        <td>
+                            <span class="campaign-badge status-${c.status}">${c.status.replace('_', ' ')}</span>
+                        </td>
+                        <td>
+                            <div class="progress-bar-small">
+                                <div class="progress-fill-small" style="width: ${progress.toFixed(1)}%"></div>
+                            </div>
+                            <small style="color: #075E54; margin-left: 0.5rem;">${progress.toFixed(1)}%</small>
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="action-btn" onclick="viewDetails(${c.id})">View</button>
+                                <!-- <button class="action-btn" onclick="editCampaign('${c.name}')">Edit</button> -->
+                            </div>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+
+            renderPagination(totalPages);
+        }
+
+        function renderPagination(totalPages) {
+            const container = document.getElementById('pagination');
+            if (totalPages <= 1) {
+                container.innerHTML = '';
+                return;
+            }
+
+            let html = `<button class="page-btn" onclick="changePage('prev')" ${currentPage === 1 ? 'disabled' : ''}>←</button>`;
+
+            for (let i = 1; i <= totalPages; i++) {
+                html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
+            }
+
+            html += `<button class="page-btn" onclick="changePage('next')" ${currentPage === totalPages ? 'disabled' : ''}>→</button>`;
+            container.innerHTML = html;
+        }
+
+        function filterCampaigns(status) {
+            currentFilter = status;
+            currentPage = 1;
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            renderTable();
+        }
+
+        function setupSearch() {
+            document.getElementById('searchInput').addEventListener('input', (e) => {
+                const term = e.target.value.toLowerCase();
+                const rows = document.querySelectorAll('#tableBody tr');
+                rows.forEach(row => {
+                    const nameCell = row.querySelector('.campaign-name');
+                    if (nameCell && nameCell.textContent.toLowerCase().includes(term)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+        }
+
+        let sortOrder = {};
+        function sortTable(column) {
+            sortOrder[column] = sortOrder[column] === 'asc' ? 'desc' : 'asc';
+            const filtered = filterCampaignsData();
+
+            filtered.sort((a, b) => {
+                let aVal = a[column];
+                let bVal = b[column];
+                if (column === 'name') {
+                    aVal = aVal.toLowerCase();
+                    bVal = bVal.toLowerCase();
+                }
+                if (sortOrder[column] === 'asc') {
+                    return aVal > bVal ? 1 : -1;
+                } else {
+                    return aVal < bVal ? 1 : -1;
+                }
+            });
+
+            fullCampaignList = currentFilter === 'all'
+                ? [...campaigns].sort((a, b) => {
+                    let aV = a[column], bV = b[column];
+                    if (column === 'name') { aV = aV.toLowerCase(); bV = bV.toLowerCase(); }
+                    return sortOrder[column] === 'asc' ? (aV > bV ? 1 : -1) : (aV < bV ? 1 : -1);
+                })
+                : fullCampaignList;
+
+            renderTable();
+        }
+
+        function changePage(direction) {
+            const totalPages = Math.ceil(filterCampaignsData().length / itemsPerPage);
+            if (direction === 'prev' && currentPage > 1) currentPage--;
+            else if (direction === 'next' && currentPage < totalPages) currentPage++;
+            renderTable();
+        }
+
+        function goToPage(page) {
+            currentPage = page;
+            renderTable();
+        }
+
+        function viewDetails(id) {
+            window.location.href = "{% url 'campaign_detail' 0 %}".replace('0', id);
+        }
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            const icons = { success: '✓', error: '✕', warning: '⚠' };
+            toast.innerHTML = `<span class="toast-icon">${icons[type]}</span><span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 100);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 400);
+            }, 3000);
+        }
+
+        document.addEventListener('DOMContentLoaded', initTable);
+    </script>
+</body>
+
+</html>

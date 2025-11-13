@@ -1,0 +1,897 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Campaign - WhatsApp Campaign Manager</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+
+<body>
+
+    <!-- Animated Background -->
+    <div class="bg-animation"></div>
+    <div class="floating-shapes">
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+    </div>
+
+    <!-- Header -->
+
+    <header>
+        <div class="header-container">
+            <div class="logo">
+                <div class="logo-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+                        <path
+                            d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.149-.67.149-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414-.074-.123-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
+                    </svg>
+                </div>
+                WhatsApp Campaign Manager
+            </div>
+            <nav>
+                <ul class="nav-links">
+                    <!-- These two links are always shown -->
+                    <li>
+                        <a href="{% url 'upload' %}"
+                            class="{% if request.resolver_match.url_name == 'upload' %}active{% endif %}">
+                            Create Campaign
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'dashboard' %}"
+                            class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                            Dashboard
+                        </a>
+                    </li>
+
+                    <!-- Auth-dependent section -->
+                    {% if user.is_authenticated %}
+                    <li style="display: flex; align-items: center; gap: 10px; color: white;">
+                        <span>Hi, {{ user.username }}!</span>
+                        <a href="{% url 'logout' %}" style="color: #ffffff; 
+                  background: rgba(255,255,255,0.15); 
+                  padding: 6px 16px; 
+                  border-radius: 6px; 
+                  text-decoration: none; 
+                  font-family: 'Poppins', sans-serif; 
+                  font-size: 14px; 
+                  border: 1px solid rgba(255,255,255,0.2); 
+                  transition: background 0.2s;">Logout
+                        </a>
+                    </li>
+                    {% else %}
+                    <li><a href="{% url 'login' %}" style="color: #ffffff; 
+                  background: rgba(255,255,255,0.15); 
+                  padding: 6px 16px; 
+                  border-radius: 6px; 
+                  text-decoration: none; 
+                  font-family: 'Poppins', sans-serif; 
+                  font-size: 14px; 
+                  border: 1px solid rgba(255,255,255,0.2); 
+                  transition: background 0.2s;">Login</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+         <div class="container">
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+            <div class="message {{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+
+    <main>
+        <div class="page-container">
+            <h1 class="page-title">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="url(#iconGradient)">
+                    <defs>
+                        <linearGradient id="iconGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#25D366;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#128C7E;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    <path
+                        d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm2 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z" />
+                </svg>
+                Create New Campaign
+            </h1>
+            <p class="page-subtitle">Launch your WhatsApp campaign with our premium tools</p>
+
+            <!-- Standard form POST (no fetch) -->
+            <form id="campaignFormElement" name="campaignForm" method="post" enctype="multipart/form-data"
+                class="form-grid">
+                {% csrf_token %}
+
+                <!-- Campaign Name -->
+                <div class="form-group">
+                    <label for="campaignName">
+                        Campaign Name <span class="required">*</span>
+                    </label>
+                    <input type="text" id="campaignName" name="campaign_name" placeholder="Enter campaign name"
+                        required>
+                </div>
+
+                <!-- Phone Number -->
+                <div class="form-group">
+                    <label for="phoneNumber">
+                        Phone Number
+                    </label>
+                    <input type="tel" id="phoneNumber" name="phone_number" placeholder="1234567890" maxlength="10">
+                     <small id="phoneHelper" class="form-text text-muted">Enter a single 10-digit phone number.</small>
+                </div>
+
+                <!-- Excel Sheet Upload -->
+                <div class="form-group">
+                    <label>
+                        Upload Excel Sheet
+                    </label>
+                    <div class="file-upload-container" id="excelUploadContainer">
+                        <div class="file-upload-icon">📊</div>
+                        <p style="color: #075E54; font-weight: 600; font-size: 1.1rem;"><strong>Click to upload</strong>
+                            or drag and drop</p>
+                        <p style="color: rgba(7, 94, 84, 0.5); font-size: 0.9rem; margin-top: 0.5rem;">  <small id="excelHelper" class="form-text text-muted">Upload an Excel file (.xlsx/.xls) with a 'phone' column.</small>
+</p>
+                        <input type="file" id="excelFile" name="excel_file" class="file-input" accept=".xlsx,.xls">
+                    </div>
+                    <div class="file-preview" id="excelPreview">
+                        <div class="file-info">
+                            <div class="file-name" id="excelFileName"></div>
+                            <div class="file-size" id="excelFileSize"></div>
+                        </div>
+                        <button type="button" class="remove-file" onclick="removeFile('excel')">Remove</button>
+                    </div>
+                    <div class="progress-bar" id="excelProgress">
+                        <div class="progress-fill" id="excelProgressFill"></div>
+                    </div>
+                </div>
+
+                <!-- Image Upload -->
+                <div class="form-group">
+                    <label>
+                        Upload Campaign Image
+                    </label>
+                    <div class="file-upload-container" id="imageUploadContainer">
+                        <div class="file-upload-icon">🖼️</div>
+                        <p style="color: #075E54; font-weight: 600; font-size: 1.1rem;"><strong>Click to upload</strong>
+                            or drag and drop</p>
+                        <p style="color: rgba(7, 94, 84, 0.5); font-size: 0.9rem; margin-top: 0.5rem;">  <small id="imageHelper" class="form-text text-muted">Upload an image (JPEG/PNG, max 1MB).</small>
+</p>
+                        <input type="file" id="imageFile" name="img1" class="file-input" accept="image/*">
+                    </div>
+                    <div class="file-preview" id="imagePreview">
+                        <div class="file-info">
+                            <div class="file-name" id="imageFileName"></div>
+                            <div class="file-size" id="imageFileSize"></div>
+                        </div>
+                        <button type="button" class="remove-file" onclick="removeFile('image')">Remove</button>
+                    </div>
+                    <div class="progress-bar" id="imageProgress">
+                        <div class="progress-fill" id="imageProgressFill"></div>
+                    </div>
+                </div>
+                <!-- Pdf Upload -->
+                <div class="form-group">
+                    <label>
+                        Upload Campaign PDF
+                    </label>
+                    <div class="file-upload-container" id="pdfUploadContainer">
+                        <div class="file-upload-icon">📄</div>
+                        <p style="color: #075E54; font-weight: 600; font-size: 1.1rem;"><strong>Click to upload</strong>
+                            or drag and drop</p>
+                        <p style="color: rgba(7, 94, 84, 0.5); font-size: 0.9rem; margin-top: 0.5rem;">  <small id="pdfHelper" class="form-text text-muted">Upload a PDF (max 1MB).</small>
+</p>
+                        <input type="file" id="pdfFile" class="file-input" name="pdf" accept="application/pdf">
+                    </div>
+                    <div class="file-preview" id="pdfPreview">
+                        <div class="file-info">
+                            <div class="file-name" id="pdfFileName"></div>
+                            <div class="file-size" id="pdfFileSize"></div>
+                        </div>
+                        <button type="button" class="remove-file" onclick="removeFile('pdf')">Remove</button>
+                    </div>
+                    <div class="progress-bar" id="pdfProgress">
+                        <div class="progress-fill" id="pdfProgressFill"></div>
+                    </div>
+                </div>
+                <!-- Message Template -->
+                <div class="form-group">
+                    <label for="messageTemplate">
+                        Message Template
+                    </label>
+                    <textarea id="messageTemplate" name="message_template" rows="4" placeholder="Hi {{name}}! - Mamatha"
+                        style="resize: vertical;"></textarea>
+                </div>
+                <div>
+                    <label for="delay">Delay between messages (seconds):</label>
+                    <input type="number" id="delay" name="delay" value="1" min="0" max="60" />
+                    <small>Recommended: 1–5 seconds to avoid WhatsApp rate limits.</small>
+                </div>
+
+                <!-- Buttons -->
+                <div class="btn-group">
+                    <button type="submit" class="btn btn-primary" id="submitBtn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path
+                                d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.149-.67.149-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414-.074-.123-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
+                        </svg>
+                        <span>Create Campaign</span>
+                        <div class="spinner"></div>
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="resetForm()">
+                        Reset Form
+                    </button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-container">
+            <div class="footer-section">
+                <h3>Product</h3>
+                <ul>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#pricing">Pricing</a></li>
+                    <li><a href="#integrations">Integrations</a></li>
+                    <li><a href="#api">API Documentation</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Company</h3>
+                <ul>
+                    <li><a href="#about">About Us</a></li>
+                    <li><a href="#careers">Careers</a></li>
+                    <li><a href="#blog">Blog</a></li>
+                    <li><a href="#press">Press</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Support</h3>
+                <ul>
+                    <li><a href="#help">Help Center</a></li>
+                    <li><a href="#contact">Contact Us</a></li>
+                    <li><a href="#status">System Status</a></li>
+                    <li><a href="#faq">FAQs</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Legal</h3>
+                <ul>
+                    <li><a href="#privacy">Privacy Policy</a></li>
+                    <li><a href="#terms">Terms of Service</a></li>
+                    <li><a href="#cookies">Cookie Policy</a></li>
+                    <li><a href="#compliance">Compliance</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 WhatsApp Campaign Manager. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Toast Container -->
+    <div id="toastContainer"></div>
+
+   
+    <!-- <script>
+
+        // =============== UI Enhancements (File Upload, Drag & Drop) ===============
+        const excelUploadContainer = document.getElementById('excelUploadContainer');
+        const imageUploadContainer = document.getElementById('imageUploadContainer');
+        const pdfUploadContainer = document.getElementById('pdfUploadContainer');
+
+        const excelFileInput = document.getElementById('excelFile');
+        const imageFileInput = document.getElementById('imageFile');
+        const pdfFileInput = document.getElementById('pdfFile');
+
+        function setupDragAndDrop(container, input) {
+            container.addEventListener('click', () => input.click());
+            container.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                container.classList.add('dragover');
+            });
+            container.addEventListener('dragleave', () => {
+                container.classList.remove('dragover');
+            });
+            container.addEventListener('drop', (e) => {
+                e.preventDefault();
+                container.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    input.files = files;
+                    handleFileSelect(input);
+                }
+            });
+        }
+
+        setupDragAndDrop(excelUploadContainer, excelFileInput);
+        setupDragAndDrop(imageUploadContainer, imageFileInput);
+        setupDragAndDrop(pdfUploadContainer, pdfFileInput);
+
+        excelFileInput.addEventListener('change', () => handleFileSelect(excelFileInput, 'excel'));
+        imageFileInput.addEventListener('change', () => handleFileSelect(imageFileInput, 'image'));
+        pdfFileInput.addEventListener('change', () => handleFileSelect(pdfFileInput, 'pdf'));
+
+        function handleFileSelect(input, fileType) {
+            const file = input.files[0];
+            if (!file) return;
+
+            let maxSize;
+            let valid = true;
+
+            // Set max size and validate type per file category
+            if (fileType === 'excel') {
+                maxSize = 10 * 1024 * 1024; // 10MB
+                const validTypes = ['.xlsx', '.xls'].some(ext => file.name.toLowerCase().endsWith(ext));
+                if (!validTypes) {
+                    showToast('Please upload a valid Excel file (.xlsx or .xls).', 'error');
+                    valid = false;
+                }
+            } else if (fileType === 'image') {
+                maxSize = 5 * 1024 * 1024; // 5MB
+                const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif'];
+                if (!validTypes.includes(file.type)) {
+                    showToast('Please upload a valid image (JPEG, PNG, JPG, GIF).', 'error');
+                    valid = false;
+                }
+            } else if (fileType === 'pdf') {
+                maxSize = 1 * 1024 * 1024; // 1MB
+                if (file.type !== 'application/pdf') {
+                    showToast('Please upload a valid PDF file.', 'error');
+                    valid = false;
+                }
+            }
+
+            if (!valid) {
+                input.value = '';
+                return;
+            }
+
+            if (file.size > maxSize) {
+                const limit = fileType === 'excel' ? '10MB' : fileType === 'pdf' ? '1MB' : '5MB';
+                showToast(`File size exceeds maximum limit (${limit})`, 'error');
+                input.value = '';
+                return;
+            }
+
+            const preview = document.getElementById(`${fileType}Preview`);
+            const fileName = document.getElementById(`${fileType}FileName`);
+            const fileSize = document.getElementById(`${fileType}FileSize`);
+
+            fileName.textContent = file.name;
+            fileSize.textContent = formatFileSize(file.size);
+            preview.classList.add('active');
+
+            simulateUpload(fileType);
+        }
+
+        function simulateUpload(fileType) {
+            const progressBar = document.getElementById(`${fileType}Progress`);
+            const progressFill = document.getElementById(`${fileType}ProgressFill`);
+            progressBar.classList.add('active');
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 30;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        progressBar.classList.remove('active');
+                        showToast(`${fileType === 'excel' ? 'Excel file' : fileType === 'pdf' ? 'PDF file' : 'Image'} uploaded successfully!`, 'success');
+                    }, 500);
+                }
+                progressFill.style.width = `${progress}%`;
+            }, 200);
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        }
+
+     
+
+        // =============== Form Validation (Before Standard Submit) ===============
+        document.getElementById('campaignFormElement').addEventListener('submit', function (e) {
+            const campaignName = document.getElementById('campaignName').value.trim();
+            const phoneNumber = document.getElementById('phoneNumber').value.trim();
+            const excelFile = excelFileInput.files[0];
+
+            // Campaign name required
+            if (!campaignName) {
+                e.preventDefault();
+                showToast('Campaign name is required.', 'error');
+                return;
+            }
+
+            // Either phone number OR Excel file must be provided
+            if (phoneNumber === '' && !excelFile) {
+                e.preventDefault();
+                showToast('Please enter a phone number or upload an Excel file.', 'error');
+                return;
+            }
+
+            // Validate phone number if provided
+            if (phoneNumber !== '') {
+                const phonePattern = /^[0-9]{10}$/;
+                if (!phonePattern.test(phoneNumber)) {
+                    e.preventDefault();
+                    showToast('Please enter a valid 10-digit phone number (numbers only).', 'error');
+                    return;
+                }
+            }
+
+            // Validate image (if present)
+            const imageFile = imageFileInput.files[0];
+            if (imageFile) {
+                const validImageTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif'];
+                if (!validImageTypes.includes(imageFile.type)) {
+                    e.preventDefault();
+                    showToast('Please upload a valid image (JPEG, PNG, JPG, GIF).', 'error');
+                    return;
+                }
+                if (imageFile.size > 5 * 1024 * 1024) {
+                    e.preventDefault();
+                    showToast('Image file must be under 5MB.', 'error');
+                    return;
+                }
+            }
+
+            // Validate PDF (if present)
+            const pdfFile = pdfFileInput.files[0];
+            if (pdfFile) {
+                if (pdfFile.type !== 'application/pdf') {
+                    e.preventDefault();
+                    showToast('Please upload a valid PDF file.', 'error');
+                    return;
+                }
+                if (pdfFile.size > 1 * 1024 * 1024) {
+                    e.preventDefault();
+                    showToast('PDF file must be under 1MB.', 'error');
+                    return;
+                }
+            }
+
+            // All validations passed — allow form to submit
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.classList.add('loading');
+            submitBtn.disabled = true;
+        });
+
+        // Reset Form
+        function resetForm() {
+            document.getElementById('campaignFormElement').reset();
+            ['excel', 'image', 'pdf'].forEach(type => {
+                document.getElementById(`${type}Preview`).classList.remove('active');
+                document.getElementById(`${type}File`).value = '';
+            });
+        }
+
+        // Toast Notification
+        function showToast(message, type = 'success') {
+            const toastContainer = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            const icons = { success: '✓', error: '✕', warning: '⚠' };
+            toast.innerHTML = `<span class="toast-icon">${icons[type]}</span><span>${message}</span>`;
+            toastContainer.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 100);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 400);
+            }, 3000);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            showToast('Welcome to WhatsApp Campaign Manager! 🚀', 'success');
+        });
+
+    </script> -->
+
+<script>
+// =============== UI & Validation Logic ===============
+
+const campaignForm = document.getElementById('campaignFormElement');
+const campaignNameInput = document.getElementById('campaignName');
+const messageTemplateInput = document.getElementById('messageTemplate');
+const phoneNumberInput = document.getElementById('phoneNumber');
+const excelFileInput = document.getElementById('excelFile');
+const imageFileInput = document.getElementById('imageFile');
+const pdfFileInput = document.getElementById('pdfFile');
+
+const excelUploadContainer = document.getElementById('excelUploadContainer');
+const imageUploadContainer = document.getElementById('imageUploadContainer');
+const pdfUploadContainer = document.getElementById('pdfUploadContainer');
+
+// =============== Mutual Exclusion: Phone vs Excel ===============
+function togglePhoneExcel() {
+    const phone = phoneNumberInput.value.trim();
+    const hasExcel = !!excelFileInput.files[0];
+
+    if (phone) {
+        // Disable Excel
+        excelFileInput.disabled = true;
+        excelUploadContainer.classList.add('disabled');
+    } else if (hasExcel) {
+        // Disable Phone
+        phoneNumberInput.disabled = true;
+    } else {
+        // Enable both
+        excelFileInput.disabled = false;
+        phoneNumberInput.disabled = false;
+        excelUploadContainer.classList.remove('disabled');
+    }
+}
+
+// =============== Mutual Exclusion: Image vs PDF ===============
+function toggleImagePdf() {
+    const hasImage = !!imageFileInput.files[0];
+    const hasPdf = !!pdfFileInput.files[0];
+
+    if (hasImage && hasPdf) {
+        // Prefer the one just selected? Or clear the other?
+        // Let's auto-clear PDF if image is added, and vice versa
+        if (lastSelectedFile === 'image') {
+            pdfFileInput.value = '';
+            updateFilePreview('pdf', false);
+        } else if (lastSelectedFile === 'pdf') {
+            imageFileInput.value = '';
+            updateFilePreview('image', false);
+        }
+    }
+
+    // Disable the opposite if one is selected
+    if (hasImage) {
+        pdfFileInput.disabled = true;
+        pdfUploadContainer.classList.add('disabled');
+    } else if (hasPdf) {
+        imageFileInput.disabled = true;
+        imageUploadContainer.classList.add('disabled');
+    } else {
+        pdfFileInput.disabled = false;
+        imageFileInput.disabled = false;
+        pdfUploadContainer.classList.remove('disabled');
+        imageUploadContainer.classList.remove('disabled');
+    }
+}
+
+let lastSelectedFile = null;
+
+// =============== File Handling ===============
+function setupDragAndDrop(container, input, fileType) {
+    container.addEventListener('click', () => input.click());
+    container.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        container.classList.add('dragover');
+    });
+    container.addEventListener('dragleave', () => {
+        container.classList.remove('dragover');
+    });
+    container.addEventListener('drop', (e) => {
+        e.preventDefault();
+        container.classList.remove('dragover');
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            input.files = files;
+            handleFileSelect(input, fileType);
+        }
+    });
+}
+
+setupDragAndDrop(excelUploadContainer, excelFileInput, 'excel');
+setupDragAndDrop(imageUploadContainer, imageFileInput, 'image');
+setupDragAndDrop(pdfUploadContainer, pdfFileInput, 'pdf');
+
+excelFileInput.addEventListener('change', () => {
+    lastSelectedFile = 'excel';
+    handleFileSelect(excelFileInput, 'excel');
+    togglePhoneExcel();
+});
+imageFileInput.addEventListener('change', () => {
+    lastSelectedFile = 'image';
+    handleFileSelect(imageFileInput, 'image');
+    toggleImagePdf();
+});
+pdfFileInput.addEventListener('change', () => {
+    lastSelectedFile = 'pdf';
+    handleFileSelect(pdfFileInput, 'pdf');
+    toggleImagePdf();
+});
+
+phoneNumberInput.addEventListener('input', () => {
+    // Remove non-digits in real-time
+    phoneNumberInput.value = phoneNumberInput.value.replace(/\D/g, '');
+    togglePhoneExcel();
+});
+
+// =============== File Validation & Preview ===============
+function handleFileSelect(input, fileType) {
+    const file = input.files[0];
+    if (!file) return;
+
+    let maxSize, isValid = true;
+    let errorMsg = '';
+
+    if (fileType === 'excel') {
+        maxSize = 10 * 1024 * 1024; // 10MB
+        const validExts = ['.xlsx', '.xls'];
+        const ext = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
+        if (!validExts.includes(ext)) {
+            errorMsg = 'Please upload a valid Excel file (.xlsx or .xls).';
+            isValid = false;
+        }
+    } else if (fileType === 'image') {
+        maxSize = 5 * 1024 * 1024; // 5MB
+        const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif'];
+        if (!validTypes.includes(file.type)) {
+            errorMsg = 'Please upload a valid image (JPEG, PNG, JPG, GIF).';
+            isValid = false;
+        }
+    } else if (fileType === 'pdf') {
+        maxSize = 1 * 1024 * 1024; // 1MB
+        if (file.type !== 'application/pdf') {
+            errorMsg = 'Please upload a valid PDF file.';
+            isValid = false;
+        }
+    }
+
+    if (!isValid) {
+        showToast(errorMsg, 'error');
+        input.value = '';
+        updateFilePreview(fileType, false);
+        return;
+    }
+
+    if (file.size > maxSize) {
+        const limit = fileType === 'excel' ? '10MB' : fileType === 'pdf' ? '1MB' : '5MB';
+        showToast(`File size exceeds limit (${limit}).`, 'error');
+        input.value = '';
+        updateFilePreview(fileType, false);
+        return;
+    }
+
+    updateFilePreview(fileType, true, file);
+    simulateUpload(fileType);
+}
+
+function updateFilePreview(fileType, active, file = null) {
+    const preview = document.getElementById(`${fileType}Preview`);
+    const fileName = document.getElementById(`${fileType}FileName`);
+    const fileSize = document.getElementById(`${fileType}FileSize`);
+
+    if (active && file) {
+        fileName.textContent = file.name;
+        fileSize.textContent = formatFileSize(file.size);
+        preview.classList.add('active');
+    } else {
+        preview.classList.remove('active');
+    }
+
+    // Re-apply mutual exclusion after update
+    if (fileType === 'excel' || fileType === 'phone') togglePhoneExcel();
+    if (fileType === 'image' || fileType === 'pdf') toggleImagePdf();
+}
+
+// =============== Form Validation on Submit ===============
+campaignForm.addEventListener('submit', function (e) {
+    const campaignName = campaignNameInput.value.trim();
+    const messageTemplate = messageTemplateInput.value.trim();
+    const phone = phoneNumberInput.value.trim();
+    const excelFile = excelFileInput.files[0];
+    const imageFile = imageFileInput.files[0];
+    const pdfFile = pdfFileInput.files[0];
+
+    // 1. Campaign name & message template required
+    if (!campaignName) {
+        e.preventDefault();
+        showToast('Campaign name is required.', 'error');
+        campaignNameInput.focus();
+        return;
+    }
+    if (!messageTemplate) {
+        e.preventDefault();
+        showToast('Message template is required.', 'error');
+        messageTemplateInput.focus();
+        return;
+    }
+
+    // 2. Either phone OR Excel (but not both, and not neither)
+    if (!phone && !excelFile) {
+        e.preventDefault();
+        showToast('Please enter a phone number or upload an Excel file.', 'error');
+        return;
+    }
+
+    // 3. Validate phone number (if provided)
+    if (phone) {
+        if (!/^\d{10}$/.test(phone)) {
+            e.preventDefault();
+            showToast('Phone number must be exactly 10 digits (numbers only).', 'error');
+            phoneNumberInput.focus();
+            return;
+        }
+    }
+
+    // 4. Image and PDF: only one allowed
+    if (imageFile && pdfFile) {
+        e.preventDefault();
+        showToast('You cannot upload both an image and a PDF. Please choose one.', 'error');
+        return;
+    }
+
+    // Optional: Re-check file validity (defense in depth)
+    if (imageFile) {
+        const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif'];
+        if (!validTypes.includes(imageFile.type) || imageFile.size > 5 * 1024 * 1024) {
+            e.preventDefault();
+            showToast('Invalid image file.', 'error');
+            return;
+        }
+    }
+    if (pdfFile) {
+        if (pdfFile.type !== 'application/pdf' || pdfFile.size > 1 * 1024 * 1024) {
+            e.preventDefault();
+            showToast('Invalid PDF file.', 'error');
+            return;
+        }
+    }
+
+    // All good!
+    const submitBtn = document.getElementById('submitBtn');
+    submitBtn.classList.add('loading');
+    submitBtn.disabled = true;
+});
+
+// =============== Utility Functions ===============
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+function removeFile(fileType) {
+            const input = document.getElementById(`${fileType}File`);
+            const preview = document.getElementById(`${fileType}Preview`);
+            input.value = '';
+            preview.classList.remove('active');
+            showToast(`${fileType === 'excel' ? 'Excel file' : fileType === 'pdf' ? 'PDF file' : 'Image'} removed`, 'warning');
+        }
+
+function simulateUpload(fileType) {
+    const progressBar = document.getElementById(`${fileType}Progress`);
+    const progressFill = document.getElementById(`${fileType}ProgressFill`);
+    progressBar.classList.add('active');
+    let progress = 0;
+    const interval = setInterval(() => {
+        progress += Math.random() * 30;
+        if (progress >= 100) {
+            progress = 100;
+            clearInterval(interval);
+            setTimeout(() => {
+                progressBar.classList.remove('active');
+                showToast(`${fileType === 'excel' ? 'Excel' : fileType === 'pdf' ? 'PDF' : 'Image'} uploaded successfully!`, 'success');
+            }, 500);
+        }
+        progressFill.style.width = `${progress}%`;
+    }, 200);
+}
+
+function resetForm() {
+    document.getElementById('campaignFormElement').reset();
+    ['excel', 'image', 'pdf'].forEach(type => {
+        const input = document.getElementById(`${type}File`);
+        input.value = '';
+        document.getElementById(`${type}Preview`).classList.remove('active');
+    });
+    // Re-enable fields and reset messages
+    togglePhoneExcel();
+    toggleImagePdf();
+}
+
+function showToast(message, type = 'success') {
+    const toastContainer = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    const icons = { success: '✓', error: '✕', warning: '⚠' };
+    toast.innerHTML = `<span class="toast-icon">${icons[type]}</span><span>${message}</span>`;
+    toastContainer.appendChild(toast);
+    setTimeout(() => toast.classList.add('show'), 100);
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 400);
+    }, 3000);
+}
+
+function togglePhoneExcel() {
+    const phone = phoneNumberInput.value.trim();
+    const hasExcel = !!excelFileInput.files[0];
+
+    const phoneHelper = document.getElementById('phoneHelper');
+    const excelHelper = document.getElementById('excelHelper');
+
+    if (phone) {
+        // Disable Excel
+        excelFileInput.disabled = true;
+        excelUploadContainer.classList.add('disabled');
+        excelHelper.textContent = '⚠️ Disabled: Phone number is already provided.';
+        excelHelper.style.color = '#e74c3c';
+    } else if (hasExcel) {
+        // Disable Phone
+        phoneNumberInput.disabled = true;
+        phoneHelper.textContent = '⚠️ Disabled: Excel file is already uploaded.';
+        phoneHelper.style.color = '#e74c3c';
+    } else {
+        // Enable both
+        excelFileInput.disabled = false;
+        phoneNumberInput.disabled = false;
+        excelUploadContainer.classList.remove('disabled');
+        // Restore original messages
+        phoneHelper.textContent = 'Enter a single 10-digit phone number.';
+        excelHelper.textContent = 'Upload an Excel file (.xlsx/.xls) with a \'phone\' column.';
+        phoneHelper.style.color = '';
+        excelHelper.style.color = '';
+    }
+}
+
+function toggleImagePdf() {
+    const hasImage = !!imageFileInput.files[0];
+    const hasPdf = !!pdfFileInput.files[0];
+
+    const imageHelper = document.getElementById('imageHelper');
+    const pdfHelper = document.getElementById('pdfHelper');
+
+    if (hasImage) {
+        pdfFileInput.disabled = true;
+        pdfUploadContainer.classList.add('disabled');
+        pdfHelper.textContent = '⚠️ Disabled: An image is already uploaded (PDF not allowed).';
+        pdfHelper.style.color = '#e74c3c';
+    } else if (hasPdf) {
+        imageFileInput.disabled = true;
+        imageUploadContainer.classList.add('disabled');
+        imageHelper.textContent = '⚠️ Disabled: A PDF is already uploaded (image not allowed).';
+        imageHelper.style.color = '#e74c3c';
+    } else {
+        pdfFileInput.disabled = false;
+        imageFileInput.disabled = false;
+        pdfUploadContainer.classList.remove('disabled');
+        imageUploadContainer.classList.remove('disabled');
+        // Restore
+        imageHelper.textContent = 'Upload an image (JPEG/PNG, max 1MB).';
+        pdfHelper.textContent = 'Upload a PDF (max 1MB).';
+        imageHelper.style.color = '';
+        pdfHelper.style.color = '';
+    }
+}
+
+
+
+// =============== Initialize ===============
+document.addEventListener('DOMContentLoaded', () => {
+    // Initial state
+    togglePhoneExcel();
+    toggleImagePdf();
+    showToast('Welcome to WhatsApp Campaign Manager! 🚀', 'success');
+});
+</script>
+
+</body>
+
+</html>
