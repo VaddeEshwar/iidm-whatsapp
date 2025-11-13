@@ -94,9 +94,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': config('u844009458_whatsapp_data'),        # your database name
-        'USER': config('eshwarvadde850'),                # your MySQL username
+        'USER': config('u844009458_eshwarvadde850'),                # your MySQL username
         'PASSWORD': config('eshwar9642'),   # your MySQL password
-        'HOST': config('YOUR_HOSTINGER_MYSQL_HOST'),           # or IP if using a remote DB
+        'HOST': config('auth-db1235.hstgr.io'),           # or IP if using a remote DB
         'PORT': config('3306', default='3306'), 
          'OPTIONS': {
             'charset': 'utf8mb4',  # 👈 THIS IS CRITICAL
