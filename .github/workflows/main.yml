@@ -1,0 +1,43 @@
+name: Django CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.10"
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    # If your project needs environment variables
+    - name: Create .env file
+      run: |
+        echo "DEBUG=True" >> .env
+        echo "SECRET_KEY=test-key" >> .env
+        echo "DATABASE_NAME=bulk_whatsapp" >> .env
+        echo "DATABASE_USER=root" >> .env
+        echo "DATABASE_PASSWORD=root" >> .env
+
+    - name: Run Migrations
+      run: |
+        python manage.py migrate
+
+    # Optional: Run Django tests
+    - name: Run Tests
+      run: |
+        python manage.py test
