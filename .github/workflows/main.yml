@@ -2,34 +2,29 @@ services:
   - type: web
     name: iidm-whatsapp
     env: python
-    buildCommand: "pip install -r requirements.txt"
-    startCommand: "gunicorn bulk_whatsapp.wsgi:application --preload"
-    autoDeploy: true
+
+    buildCommand: |
+      ./render-build.sh
+      pip install -r requirements.txt
+
+    startCommand: |
+      gunicorn bulk_whatsapp.wsgi:application --timeout 120 --workers 3
 
     envVars:
       - key: SECRET_KEY
         sync: false
-
       - key: DEBUG
-        value: True
-
+        value: False
       - key: ALLOWED_HOSTS
         value: iidm-whatsapp.onrender.com,localhost
 
-      # Hostinger DB Values
       - key: DB_NAME
-        value: u844009458_whatsapp_data
+        sync: false
       - key: DB_USER
-        value: u844009458_eshwarvadde8
+        sync: false
       - key: DB_PASSWORD
-        value: eshwar9642
+        sync: false
       - key: DB_HOST
-        value: auth-db1235.hstgr.io
+        sync: false
       - key: DB_PORT
         value: 3306
-
-      # Optional
-      - key: NGROK_URL
-        value: https://abc123.ngrok.io
-      - key: SMS_API_KEYS
-        value: 64f9c578744246a0b2d0af43ccd09d34
