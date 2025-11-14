@@ -58,6 +58,7 @@ jobs:
           echo "DB_PORT=3306" >> .env
 
           # Run Django migrations
+          py manage.py makemigrations
           py manage.py migrate
 
           
