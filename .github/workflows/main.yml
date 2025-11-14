@@ -60,6 +60,5 @@ jobs:
           # Run Django migrations
           python manage.py migrate
 
-          # Restart Passenger (Hostinger Python runtime)
-          touch ../tmp/restart.txt
+          
 
