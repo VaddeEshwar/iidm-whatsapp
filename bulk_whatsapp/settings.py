@@ -12,8 +12,10 @@ SECRET_KEY = config("SECRET_KEY", default="dev-secret-key")
 DEBUG = config("DEBUG", default=False, cast=bool)
 
 ALLOWED_HOSTS = [
-    "iidm.co.in"
-    config("RENDER_EXTERNAL_HOSTNAME", default=""),
+    'iidm.co.in',
+    'www.iidm.co.in',
+    '127.0.0.1',
+    'localhost',
 ]
 
 CSRF_TRUSTED_ORIGINS = [
