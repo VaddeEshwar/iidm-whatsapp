@@ -96,19 +96,12 @@ def send_bulk_whatsapp(self, campaign_id,user_id, excel_path, template, delay_se
             else:
                 failed += 1
 
-            # Update progress
-            if (idx + 1) % 100 == 0 or idx == total - 1:
-                campaign.sent_count = sent
-                campaign.failed_count = failed
-                campaign.save()
+            campaign.sent_count = sent
+            campaign.failed_count = failed
+            campaign.save(update_fields=['sent_count', 'failed_count'])
 
             if delay_seconds > 0:
                 time.sleep(delay_seconds)
-
-        # Final update
-        campaign.sent_count = sent
-        campaign.failed_count = failed
-        campaign.save()
 
         logger.info(f"Campaign {campaign_id} finished: {sent} sent, {failed} failed")
 
