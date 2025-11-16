@@ -1,11 +1,11 @@
 # sms/utils.py
 import requests
-import logging
 from django.conf import settings
 from django.core.files.uploadedfile import UploadedFile
 import os
 import time
 from urllib.parse import urlencode,urlencode, quote_plus, quote
+import logging
 logger = logging.getLogger(__name__)
 
 def send_via_cloudwhatsapp(phone, message, api_key, img_url=None, pdf_url=None):
