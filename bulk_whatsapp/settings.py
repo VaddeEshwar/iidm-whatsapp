@@ -119,7 +119,7 @@ STATICFILES_DIRS = []   # KEEP EMPTY OR REMOVE COMPLETELY
 
 
 MEDIA_URL = "/media/"
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+MEDIA_ROOT = "/var/www/iidm-whatsapp/media"
 
 STATICFILES_FINDERS = [
     "django.contrib.staticfiles.finders.FileSystemFinder",
