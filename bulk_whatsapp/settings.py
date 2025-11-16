@@ -146,7 +146,7 @@ LOGGING = {
     "disable_existing_loggers": False,
 
     "formatters": {
-        "default": {
+        "verbose": {
             "format": "[{asctime}] {levelname} {name}: {message}",
             "style": "{",
         },
@@ -155,27 +155,22 @@ LOGGING = {
     "handlers": {
         "console": {
             "class": "logging.StreamHandler",
-            "formatter": "default",
+            "formatter": "verbose",
         },
-        "file_utils": {
+        "utils_file": {
             "class": "logging.FileHandler",
             "filename": "/var/log/django/utils.log",
-            "formatter": "default",
+            "formatter": "verbose",
         },
     },
 
     "loggers": {
-        "sms.utils": {               
-            "handlers": ["console", "file_utils"],
+        "sms.utils": {              # <<<< EXACT MATCH
+            "handlers": ["console", "utils_file"],
             "level": "INFO",
             "propagate": False,
         },
-
-        "django": {
-            "handlers": ["console"],
-            "level": "INFO",
-            "propagate": False,
-        },
-    },
+    }
 }
+
 
