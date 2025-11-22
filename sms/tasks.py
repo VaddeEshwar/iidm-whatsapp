@@ -61,7 +61,7 @@ def send_bulk_whatsapp(self, campaign_id,user_id, excel_path, template, delay_se
                 continue
 
             # Use the URLs passed from view (no local paths!)
-            api_key = api_keys[current_key_index]
+            # api_key = api_keys[current_key_index]
             success, error = send_via_cloudwhatsapp(
                 phone=phone,
                 message=message,
@@ -71,10 +71,10 @@ def send_bulk_whatsapp(self, campaign_id,user_id, excel_path, template, delay_se
             )
             logger.info(f"Sending WhatsApp to {phone} with pdf_url: {pdf_url}")
 
-            # Rotate key on auth errors
-            if not success and ('invalid api key' in str(error).lower() or 'blocked' in str(error).lower()):
-                current_key_index = (current_key_index + 1) % len(api_keys)
-                api_key = api_keys[current_key_index]
+            # Retry once if API key expired/blocked
+            error_msg = str(error).lower() if error else ""
+            if not success and ("invalid api key" in error_msg or "blocked" in error_msg):
+                logger.warning(f"API key rejected for {phone} — reason: {error_msg}")
                 success, error = send_via_cloudwhatsapp(
                     phone=phone,
                     message=message,
