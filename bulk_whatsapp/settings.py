@@ -135,7 +135,7 @@ CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'
 # --------------------------
 # SMS API Keys
 # --------------------------
-SMS_API_KEYS = ["64f9c578744246a0b2d0af43ccd09d34"]
+# SMS_API_KEYS = ["64f9c578744246a0b2d0af43ccd09d34"]
 
 MESSAGE_TAGS = {
     messages.SUCCESS: 'success',
