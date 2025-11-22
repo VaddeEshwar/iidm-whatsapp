@@ -29,3 +29,10 @@ class MessageLog(models.Model):
 
     def __str__(self):
         return f"{self.phone_number} - {self.status}"
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    api_key = models.CharField(max_length=255, blank=True, null=True)
+
+    def __str__(self):
+        return self.user.username
