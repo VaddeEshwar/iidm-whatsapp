@@ -31,7 +31,7 @@ def upload_view(request):
         img1 = request.FILES.get('img1')
         pdf = request.FILES.get('pdf')
         delay_input = request.POST.get('delay', '1')
-        logger.info(f"Logged message for {phone_number} | success={success} | error={error}")
+        logger.info(f"Logged message for {phone_number}")
 
         # ====== 1. Validate core fields ======
         if not campaign_name:
