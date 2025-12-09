@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.core.files.storage import default_storage
 from django.contrib.auth import authenticate, login, logout
 from .models import Campaign, MessageLog
-from .tasks import send_bulk_whatsapp
+from sms.tasks import send_bulk_whatsapp
 from .utils import save_uploaded_file_to_media
 from django.db.models import Sum
 import re
