@@ -1,121 +1,140 @@
-# sms/tasks.py
 import os
-import time
+import logging
 import pandas as pd
 from celery import shared_task
 from django.conf import settings
-from .utils import send_via_cloudwhatsapp
+from django.db.models import F
 from .models import Campaign, MessageLog
 from django.contrib.auth.models import User
 
-import logging
+
 logger = logging.getLogger(__name__)
 
+
 @shared_task(bind=True)
-def send_bulk_whatsapp(self, campaign_id,user_id, excel_path, template, delay_seconds=1, img_url=None, pdf_url=None):
+def send_bulk_whatsapp(self, campaign_id, user_id, excel_path, template, img_url=None, pdf_url=None):
     """
-    Send bulk WhatsApp using CloudWhatsApp API that expects media as public URLs.
+    Parent task:
+    Reads Excel and queues independent message tasks
     """
-    campaign = None
-    temp_files_to_clean = [excel_path]  # Only Excel is a temp file now
-    logger.info("send_bulk_whatsapp starting...")
     try:
         campaign = Campaign.objects.get(id=campaign_id)
         user = User.objects.get(id=user_id)
+
+        api_key = getattr(user.userprofile, "api_key", None)
+        if not api_key:
+            raise ValueError(f"User {user.username} does not have an API key!")
+
         df = pd.read_excel(excel_path)
         total = len(df)
+        logger.warning(f"BULK TASK STARTED — rows: {len(df)}")
+
+
+        # Store total count
         campaign.total_numbers = total
         campaign.save()
 
-        # api_keys = [k.strip() for k in getattr(settings, 'SMS_API_KEYS', []) if k.strip()]
-        # if not api_keys:
-        #     raise ValueError("No API keys configured")
-
-        # current_key_index = 0
-        api_key = user.userprofile.api_key  
-        if not api_key:
-            raise ValueError(f"User {user.username} does not have an API key assigned.")
-        sent, failed = 0, 0
-
-        for idx, row in df.iterrows():
-            raw_phone = str(row.get('phone', '')).strip()
-            if not raw_phone or not raw_phone.isdigit():
-                failed += 1
-                continue
-
-            phone = raw_phone
-            message = template
-            for col in df.columns:
-                if col == 'phone':
-                    continue
-                placeholder = f"{{{{{col}}}}}"
-                if placeholder in message:
-                    value = str(row.get(col, '')).strip()
-                    message = message.replace(placeholder, value)
-            message = message.strip()
-
-            # Skip if nothing to send
-            if not message and not img_url and not pdf_url:
-                logger.warning(f"Nothing to send for {phone}")
-                failed += 1
-                continue
-
-            # Use the URLs passed from view (no local paths!)
-            # api_key = api_keys[current_key_index]
-            success, error = send_via_cloudwhatsapp(
-                phone=phone,
-                message=message,
-                api_key=api_key,
-                img_url=img_url,
-                pdf_url=pdf_url
+        for _, row in df.iterrows():
+            send_single_whatsapp.apply_async(
+                kwargs={
+                    "campaign_id": campaign_id,
+                    "user_id": user_id,
+                    "row": row.to_dict(),
+                    "template": template,
+                    "api_key": api_key,
+                    "img_url": img_url,
+                    "pdf_url": pdf_url,
+                },
+                queue="whatsapp"  # send to WhatsApp only worker
             )
-            logger.info(f"Sending WhatsApp to {phone} with pdf_url: {pdf_url}")
 
-            # Retry once if API key expired/blocked
-            error_msg = str(error).lower() if error else ""
-            if not success and ("invalid api key" in error_msg or "blocked" in error_msg):
-                logger.warning(f"API key rejected for {phone} — reason: {error_msg}")
-                success, error = send_via_cloudwhatsapp(
-                    phone=phone,
-                    message=message,
-                    api_key=api_key,
-                    img_url=img_url,
-                    pdf_url=pdf_url
-                )
+        logger.info(f"[BULK QUEUED] Campaign {campaign_id} → {total} messages")
+        return {"status": "queued", "total": total}
 
-            # Log result
+    except Exception as e:
+        logger.exception(f"[PARENT TASK FAILED] Campaign {campaign_id}: {e}")
+        raise
+
+    finally:
+        # Delete temp Excel file
+        try:
+            if excel_path and os.path.exists(excel_path):
+                os.remove(excel_path)
+        except Exception as exc:
+            logger.warning(f"Could not delete uploaded Excel file: {exc}")
+
+
+@shared_task(
+    bind=True,
+    autoretry_for=(Exception,),      # retry only on real errors
+    retry_backoff=True,             # exponential delay: 1s → 2s → 4s ...
+    retry_kwargs={"max_retries": 3},
+    rate_limit="10/m"               # ≈ 50 messages per 5 mins (SAFE)
+)
+def send_single_whatsapp(self, campaign_id, user_id, row, template, api_key, img_url=None, pdf_url=None):
+    """
+    Child task:
+    Sends WhatsApp message + Log + Update counts
+    """
+
+    from .utils import send_via_cloudwhatsapp  # Local import avoids circular issue
+
+    try:
+        campaign = Campaign.objects.get(id=campaign_id)
+        user = User.objects.get(id=user_id)
+
+        phone = str(row.get("phone", "")).strip()
+
+        if not phone.isdigit() or len(phone) < 10:
+            # Invalid number logging
             MessageLog.objects.create(
                 campaign=campaign,
                 user=user,
                 phone_number=phone,
-                message_text=message,
-                status='sent' if success else 'failed',
-                error_code=str(error) if not success else None,
-                api_key_used=api_key
+                message_text="",
+                status="failed",
+                error_code="INVALID_PHONE",
             )
-            logger.info(f"adding Data to MessageLog to {phone} and api used :{api_key}")
-            if success:
-                sent += 1
-            else:
-                failed += 1
+            Campaign.objects.filter(id=campaign_id).update(failed_count=F("failed_count") + 1)
+            logger.warning(f"[INVALID PHONE] {phone}")
+            return {"phone": phone, "status": "failed"}
 
-            campaign.sent_count = sent
-            campaign.failed_count = failed
-            campaign.save(update_fields=['sent_count', 'failed_count'])
+        # Replace {{column_name}} placeholders
+        message = template
+        for col, value in row.items():
+            if col != "phone":
+                message = message.replace(f"{{{{{col}}}}}", str(value))
 
-            if delay_seconds > 0:
-                time.sleep(delay_seconds)
+        message = message.strip()
 
-        logger.info(f"Campaign {campaign_id} finished: {sent} sent, {failed} failed")
+        # Send API request
+        success, error = send_via_cloudwhatsapp(
+            phone=phone,
+            message=message,
+            api_key=api_key,
+            img_url=img_url,
+            pdf_url=pdf_url,
+        )
+
+        # Log the message
+        MessageLog.objects.create(
+            campaign=campaign,
+            user=user,
+            phone_number=phone,
+            message_text=message,
+            status="sent" if success else "failed",
+            error_code=None if success else str(error),
+        )
+
+        if success:
+            Campaign.objects.filter(id=campaign_id).update(sent_count=F("sent_count") + 1)
+            logger.info(f"[SENT] {phone}")
+        else:
+            Campaign.objects.filter(id=campaign_id).update(failed_count=F("failed_count") + 1)
+            logger.error(f"[FAILED] {phone} → {error}")
+
+        return {"phone": phone, "status": "sent" if success else "failed"}
 
     except Exception as e:
-        logger.exception(f"Task failed for campaign {campaign_id}: {e}")
-        raise
-    finally:
-        # Clean up ONLY the Excel temp file (media files are in MEDIA_ROOT and not deleted here)
-        try:
-            if excel_path and os.path.exists(excel_path):
-                os.unlink(excel_path)
-                logger.info(f"Temporary Excel file deleted: {excel_path}")
-        except Exception as ex:
-            logger.warning(f"Failed to delete Excel temp file {excel_path}: {ex}")
+        logger.exception(f"[RETRY] Phone {row.get('phone')} → {e}")
+        raise  # triggers Celery retry
