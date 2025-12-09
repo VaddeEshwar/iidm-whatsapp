@@ -181,7 +181,6 @@ def upload_view(request):
                 user_id=request.user.id,
                 excel_path=excel_path,
                 template=message_template,
-                delay_seconds=delay_seconds,
                 img_url=img_url,
                 pdf_url=pdf_url
             )
