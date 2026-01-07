@@ -14,7 +14,7 @@ def send_via_cloudwhatsapp(phone, message, api_key, img_url=None, pdf_url=None):
     Works exactly like your successful test.
     """
     # ✅ Use HTTPS (your test used https)
-    base_url = "https://web.cloudwhatsapp.com/wapp/api/send"
+    base_url = "https://graph.facebook.com/v22.0/989568807562414/messages"
     logger.info("building api url...")
     # Encode only the message (safe for spaces, special chars)
     msg_part = f"&msg={quote(message)}" if message else ""
